@@ -1,0 +1,122 @@
+'Ttree.Moltin:ProductMixins':
+  abstract: TRUE
+  ui:
+    inspector:
+      tabs:
+        shop:
+          label: 'Shop'
+          icon: 'icon-gift'
+      groups:
+        product:
+          label: 'Product Information'
+          tab: 'shop'
+  postprocessors:
+    'ProductNodeTypePostprocessor':
+      postprocessor: 'Ttree\Moltin\NodeTypePostprocessor\ProductNodeTypePostprocessor'
+  properties:
+    productIdentifier:
+      type: string
+      ui:
+        inspector:
+          group: ~
+    productSku:
+      type: string
+      ui:
+        label: "SKU"
+        reloadPageIfChanged: TRUE
+        inspector:
+          group: 'product'
+      validation:
+        'TYPO3.Neos/Validation/TextValidator': []
+    productPrice:
+      type: string
+      ui:
+        label: "Price"
+        reloadPageIfChanged: TRUE
+        inspector:
+          group: 'product'
+      validation:
+        'TYPO3.Neos/Validation/FloatValidator': []
+    productSalePrice:
+      type: string
+      ui:
+        label: "Sale Price"
+        reloadPageIfChanged: TRUE
+        inspector:
+          group: 'product'
+      validation:
+        'TYPO3.Neos/Validation/FloatValidator': []
+    productTaxBand:
+      type: integer
+      defaultValue: 1
+      ui:
+        label: "Tax Band"
+        reloadPageIfChanged: TRUE
+        inspector:
+          group: 'product'
+          editor: 'TYPO3.Neos/Inspector/Editors/SelectBoxEditor'
+    productStatus:
+      type: integer
+      ui:
+        label: "Status"
+        reloadPageIfChanged: TRUE
+        inspector:
+          group: 'product'
+          editor: 'TYPO3.Neos/Inspector/Editors/SelectBoxEditor'
+          editorOptions:
+            values:
+              '0':
+                label: 'Draft'
+              '1':
+                label: 'Live'
+    productCategory:
+      type: string
+      ui:
+        label: "Category"
+        reloadPageIfChanged: TRUE
+        inspector:
+          group: 'product'
+          editor: 'TYPO3.Neos/Inspector/Editors/SelectBoxEditor'
+    productStockStatus:
+      type: integer
+      ui:
+        label: "Stock Status"
+        reloadPageIfChanged: TRUE
+        inspector:
+          group: 'product'
+          editor: 'TYPO3.Neos/Inspector/Editors/SelectBoxEditor'
+          editorOptions:
+            values:
+              '0':
+                label: 'Unlimited'
+              '1':
+                label: 'In Stock'
+              '2':
+                label: 'Low Stock'
+              '3':
+                label: 'Out Of Stock'
+              '4':
+                label: 'More Stock Ordered'
+              '5':
+                label: 'Discontinued'
+    productStockLevel:
+      type: integer
+      ui:
+        label: "Stock Level"
+        reloadPageIfChanged: TRUE
+        inspector:
+          group: 'product'
+    productRequiresShipping:
+      type: boolean
+      ui:
+        label: "Requires Shipping"
+        reloadPageIfChanged: TRUE
+        inspector:
+          group: 'product'
+    productCatalogOnly:
+      type: boolean
+      ui:
+        label: "Catalog Only"
+        reloadPageIfChanged: TRUE
+        inspector:
+          group: 'product'
