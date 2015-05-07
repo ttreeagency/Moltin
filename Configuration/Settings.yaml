@@ -3,3 +3,9 @@ Ttree:
     client:
       clientId: 'your client id'
       clientSecret: 'your client secret'
+
+TYPO3:
+  Neos:
+    typoScript:
+      autoInclude:
+        'Ttree.Moltin': TRUE

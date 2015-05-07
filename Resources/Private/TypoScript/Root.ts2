@@ -1,0 +1,9 @@
+prototype(TYPO3.Neos:Page) {
+	head {
+		moltinHeaderData = TYPO3.TypoScript:Template {
+			@position = 'end 10001'
+			templatePath = 'resource://Ttree.Moltin/Private/Templates/TypoScriptObjects/MoltinHeaderData.html'
+			publicId = ${Configuration.setting('Ttree.Moltin.client.clientId')}
+		}
+	}
+}
