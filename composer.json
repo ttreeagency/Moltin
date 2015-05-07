@@ -1,0 +1,15 @@
+{
+    "name": "ttree/moltin",
+    "type": "typo3-flow-package",
+    "description": "Add description here",
+    "require": {
+        "typo3/flow": "*",
+        "typo3/neos": "*",
+        "moltin/php-sdk" : "dev-version1"
+    },
+    "autoload": {
+        "psr-0": {
+            "Ttree\\Moltin": "Classes"
+        }
+    }
+}

@@ -1,0 +1,5 @@
+Ttree:
+  Moltin:
+    client:
+      clientId: 'your client id'
+      clientSecret: 'your client secret'
