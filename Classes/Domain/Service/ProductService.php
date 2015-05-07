@@ -2,6 +2,7 @@
 namespace Ttree\Moltin\Domain\Service;
 
 use Moltin\SDK\Facade\Product;
+use Ttree\Moltin\Domain\Model\Product as MoltinProduct;
 use Ttree\Moltin\Domain\Repository\ProductRepository;
 use TYPO3\Flow\Annotations as Flow;
 use TYPO3\Flow\Exception;
@@ -62,19 +63,20 @@ class ProductService {
 		}
 		$productIdentifier = NULL;
 		$this->authenticateService->authenticate();
-		$productProperties = $this->propertyMapper->convert($node, 'array');
+		/** @var MoltinProduct $productProperties */
+		$productProperties = $this->propertyMapper->convert($node, 'Ttree\Moltin\Domain\Model\Product');
 		foreach ($this->requiredProperties as $propertyName) {
-			if (!isset($productProperties[$propertyName]) || trim($productProperties[$propertyName]) === '') {
+			if (trim($productProperties->getProperty($propertyName)) === '') {
 				throw new Exception(sprintf('The property "%s" is required', $propertyName), 1431033237);
 			}
 		}
 		$product = $this->productRepository->findBySlug($node->getIdentifier());
 		if ($product !== NULL) {
-			Product::Update($product['id'], $productProperties);
-			$message = sprintf('Moltin product "%s" updated, based on node "%s"', $product['id'], $node->getPath());
+			Product::Update($product->getIdentifier(), $productProperties->getProperties());
+			$message = sprintf('Moltin product "%s" updated, based on node "%s"', $product->getIdentifier(), $node->getPath());
 		} else {
-			$product = Product::Create($productProperties);
-			$message = sprintf('Moltin product "%s" created, based on node "%s"', $product['id'], $node->getPath());
+			$product = Product::Create($productProperties->getProperties());
+			$message = sprintf('Moltin product "%s" created, based on node "%s"', $product->getIdentifier(), $node->getPath());
 		}
 		$this->logger->log($message, LOG_DEBUG);
 	}
@@ -92,7 +94,7 @@ class ProductService {
 		if ($product !== NULL) {
 			return;
 		}
-		Product::Delete($product['id']);
+		Product::Delete($product->getIdentifier());
 	}
 
 }

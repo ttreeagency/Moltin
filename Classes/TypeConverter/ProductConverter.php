@@ -1,6 +1,7 @@
 <?php
 namespace Ttree\Moltin\TypeConverter;
 
+use Ttree\Moltin\Domain\Model\Product;
 use TYPO3\Flow\Annotations as Flow;
 use TYPO3\Flow\Property\PropertyMappingConfigurationInterface;
 use TYPO3\Flow\Property\TypeConverter\AbstractTypeConverter;
@@ -21,7 +22,7 @@ class ProductConverter extends AbstractTypeConverter {
 	/**
 	 * @var string
 	 */
-	protected $targetType = 'array';
+	protected $targetType = 'Ttree\Moltin\Domain\Model\Product';
 
 	/**
 	 * @var integer
@@ -41,7 +42,7 @@ class ProductConverter extends AbstractTypeConverter {
 	 */
 	public function convertFrom($source, $targetType, array $convertedChildProperties = array(), PropertyMappingConfigurationInterface $configuration = NULL) {
 		/** @var NodeInterface $source */
-		return [
+		return new Product([
 			'title' => $source->getProperty('title'),
 			'slug' => $source->getIdentifier(),
 			'sku' => $source->getProperty('productSku'),
@@ -56,7 +57,7 @@ class ProductConverter extends AbstractTypeConverter {
 			'tax_band' => (integer)$source->getProperty('productTaxband'),
 			// todo use content dimensions to edit product description
 			'description' => $source->getProperty('title')
-		];
+		]);
 	}
 
 }

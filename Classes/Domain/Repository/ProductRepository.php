@@ -2,6 +2,7 @@
 namespace Ttree\Moltin\Domain\Repository;
 
 use Moltin\SDK\Facade\Product;
+use Ttree\Moltin\Domain\Model\Product as MoltinProduct;
 use Ttree\Moltin\Domain\Service\AuthenticateService;
 use TYPO3\Flow\Annotations as Flow;
 
@@ -22,7 +23,7 @@ class ProductRepository {
 
 	/**
 	 * @param string $slug
-	 * @return array
+	 * @return MoltinProduct
 	 * @api
 	 */
 	public function findBySlug($slug) {
@@ -31,12 +32,12 @@ class ProductRepository {
 		if (!isset($product['result'][0]['id'])) {
 			return NULL;
 		}
-		return $product['result'][0];
+		return new MoltinProduct($product['result'][0]);
 	}
 
 	/**
 	 * @param string $sku
-	 * @return array
+	 * @return MoltinProduct
 	 * @api
 	 */
 	public function findBySku($sku) {
@@ -45,12 +46,12 @@ class ProductRepository {
 		if (!isset($product['result'][0]['id'])) {
 			return NULL;
 		}
-		return $product['result'][0];
+		return new MoltinProduct($product['result'][0]);
 	}
 
 	/**
 	 * @param string $identifier
-	 * @return array
+	 * @return MoltinProduct
 	 * @api
 	 */
 	public function findByIdentifier($identifier) {
@@ -59,7 +60,7 @@ class ProductRepository {
 		if (!isset($product['result'][0]['id'])) {
 			return NULL;
 		}
-		return $product['result'][0];
+		return new MoltinProduct($product['result'][0]);
 	}
 
 }
