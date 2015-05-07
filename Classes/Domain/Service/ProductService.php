@@ -37,6 +37,12 @@ class ProductService {
 	protected $logger;
 
 	/**
+	 * @var array
+	 * @see http://docs.moltin.com/1.0/product/php#params
+	 */
+	protected $requiredProperties = ['sku', 'title', 'slug', 'price', 'status', 'category', 'stock_level', 'stock_status', 'description', 'requires_shipping', 'tax_band', 'catalog_only'];
+
+	/**
 	 * @param NodeInterface $node
 	 * @throws \Exception
 	 */
@@ -47,12 +53,18 @@ class ProductService {
 		$productIdentifier = NULL;
 		$this->authenticateService->authenticate();
 		$product = Product::Find(['slug' => $node->getIdentifier()]);
+		$productProperties = $this->getProductProperties($node);
+		foreach ($this->requiredProperties as $propertyName) {
+			if (!isset($productProperties[$propertyName]) || trim($productProperties[$propertyName]) === '') {
+				throw new Exception(sprintf('The property "%s" is required', $propertyName), 1431033237);
+			}
+		}
 		if (isset($product['result'][0]['id'])) {
 			$productIdentifier = $product['result'][0]['id'];
-			Product::Update($productIdentifier, $this->getProductProperties($node));
+			Product::Update($productIdentifier, $productProperties);
 			$message = sprintf('Moltin product "%s" updated, based on node "%s"', $productIdentifier, $node->getPath());
 		} else {
-			$product = Product::Create($product);
+			$product = Product::Create($productProperties);
 			$productIdentifier = $product['id'];
 			$message = sprintf('Moltin product "%s" created, based on node "%s"', $productIdentifier, $node->getPath());
 		}
