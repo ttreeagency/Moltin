@@ -2,11 +2,13 @@
 namespace Ttree\Moltin\Domain\Service;
 
 use Moltin\SDK\Facade\Product;
+use Ttree\Moltin\Domain\Repository\ProductRepository;
 use TYPO3\Flow\Annotations as Flow;
 use TYPO3\Flow\Exception;
 use TYPO3\Flow\Log\SystemLoggerInterface;
 use TYPO3\Flow\Property\PropertyMapper;
 use TYPO3\TYPO3CR\Domain\Model\NodeInterface;
+use TYPO3\TYPO3CR\Domain\Model\Workspace;
 use TYPO3\TYPO3CR\Utility;
 
 /**
@@ -23,6 +25,12 @@ class ProductService {
 	 * @var AuthenticateService
 	 */
 	protected $authenticateService;
+
+	/**
+	 * @Flow\Inject
+	 * @var ProductRepository
+	 */
+	protected $productRepository;
 
 	/**
 	 * @Flow\Inject
@@ -44,39 +52,47 @@ class ProductService {
 
 	/**
 	 * @param NodeInterface $node
+	 * @param Workspace $workspace
 	 * @throws \Exception
+	 * @api
 	 */
-	public function createOrUpdate(NodeInterface $node) {
-		if (!$node->getNodeType()->isOfType('Ttree.Moltin:ProductMixins')) {
+	public function createOrUpdate(NodeInterface $node, Workspace $workspace) {
+		if (!$node->getNodeType()->isOfType('Ttree.Moltin:ProductMixins') || $workspace->getName() !== 'live') {
 			return;
 		}
 		$productIdentifier = NULL;
 		$this->authenticateService->authenticate();
-		$product = Product::Find(['slug' => $node->getIdentifier()]);
-		$productProperties = $this->getProductProperties($node);
+		$productProperties = $this->propertyMapper->convert($node, 'array');
 		foreach ($this->requiredProperties as $propertyName) {
 			if (!isset($productProperties[$propertyName]) || trim($productProperties[$propertyName]) === '') {
 				throw new Exception(sprintf('The property "%s" is required', $propertyName), 1431033237);
 			}
 		}
-		if (isset($product['result'][0]['id'])) {
-			$productIdentifier = $product['result'][0]['id'];
-			Product::Update($productIdentifier, $productProperties);
-			$message = sprintf('Moltin product "%s" updated, based on node "%s"', $productIdentifier, $node->getPath());
+		$product = $this->productRepository->findBySlug($node->getIdentifier());
+		if ($product !== NULL) {
+			Product::Update($product['id'], $productProperties);
+			$message = sprintf('Moltin product "%s" updated, based on node "%s"', $product['id'], $node->getPath());
 		} else {
 			$product = Product::Create($productProperties);
-			$productIdentifier = $product['id'];
-			$message = sprintf('Moltin product "%s" created, based on node "%s"', $productIdentifier, $node->getPath());
+			$message = sprintf('Moltin product "%s" created, based on node "%s"', $product['id'], $node->getPath());
 		}
 		$this->logger->log($message, LOG_DEBUG);
 	}
 
 	/**
 	 * @param NodeInterface $node
-	 * @return array
+	 * @param Workspace $workspace
+	 * @api
 	 */
-	protected function getProductProperties(NodeInterface $node) {
-		return $this->propertyMapper->convert($node, 'array');
+	public function delete(NodeInterface $node, Workspace $workspace) {
+		if (!$node->getNodeType()->isOfType('Ttree.Moltin:ProductMixins') || $workspace->getName() !== 'live') {
+			return;
+		}
+		$product = $this->productRepository->findBySlug($node->getIdentifier());
+		if ($product !== NULL) {
+			return;
+		}
+		Product::Delete($product['id']);
 	}
 
 }
