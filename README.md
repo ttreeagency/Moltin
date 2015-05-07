@@ -18,7 +18,9 @@ Next steps
 
 * Delete product on Moltin when the node is deleted from the content repository
 * TypoScript object to display the Moltin card (basket)
-* Support for flexible checkout
+* Support JS SDK integration
+* Support for flexible checkout (JS + PHP)
+* Add a cache layer on top of Moltin API, based on Caching Framework
 * Javascript Inspector editor to connect directly to Moltin (live dashboard)
 * Support Moltin Webhooks to update cached data in Neos
 * General Dashboard module to have an overview of the shop
