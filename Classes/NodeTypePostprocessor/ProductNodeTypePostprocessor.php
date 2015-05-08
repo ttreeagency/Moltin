@@ -71,7 +71,7 @@ class ProductNodeTypePostprocessor implements NodeTypePostprocessorInterface {
 	 */
 	protected function processCategoryTree(&$categories, $tree, $level = 0) {
 		foreach ($tree as $category) {
-			$prefix = $level > 0 ? str_repeat('-', $level) : NULL;
+			$prefix = $level > 0 ? str_repeat('  ', $level) : NULL;
 			$categories[$category['id']] = [
 				'label' => trim(sprintf('%s %s', $prefix, $category['title']))
 			];
