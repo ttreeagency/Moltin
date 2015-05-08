@@ -8,7 +8,7 @@
     },
     "autoload": {
         "psr-4": {
-            "Ttree\\Moltin": "Classes"
+            "Ttree\\Moltin\\": "Classes"
         }
     }
 }
