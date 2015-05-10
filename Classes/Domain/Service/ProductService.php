@@ -6,11 +6,8 @@ use Ttree\Moltin\Domain\Model\Product as MoltinProduct;
 use Ttree\Moltin\Domain\Repository\ProductRepository;
 use TYPO3\Flow\Annotations as Flow;
 use TYPO3\Flow\Exception;
-use TYPO3\Flow\Log\SystemLoggerInterface;
-use TYPO3\Flow\Property\PropertyMapper;
 use TYPO3\TYPO3CR\Domain\Model\NodeInterface;
 use TYPO3\TYPO3CR\Domain\Model\Workspace;
-use TYPO3\TYPO3CR\Utility;
 
 /**
  * A service for managing product
@@ -19,31 +16,13 @@ use TYPO3\TYPO3CR\Utility;
  * @api
  * @license http://www.opensource.org/licenses/mit-license.html MIT License
  */
-class ProductService {
-
-	/**
-	 * @Flow\Inject
-	 * @var AuthenticateService
-	 */
-	protected $authenticateService;
+class ProductService extends AbstractService {
 
 	/**
 	 * @Flow\Inject
 	 * @var ProductRepository
 	 */
 	protected $productRepository;
-
-	/**
-	 * @Flow\Inject
-	 * @var PropertyMapper
-	 */
-	protected $propertyMapper;
-
-	/**
-	 * @Flow\Inject
-	 * @var SystemLoggerInterface
-	 */
-	protected $logger;
 
 	/**
 	 * @var array
@@ -63,19 +42,20 @@ class ProductService {
 		}
 		$productIdentifier = NULL;
 		$this->authenticateService->authenticate();
-		/** @var MoltinProduct $productProperties */
-		$productProperties = $this->propertyMapper->convert($node, 'Ttree\Moltin\Domain\Model\Product');
+		/** @var MoltinProduct $product */
+		$product = $this->propertyMapper->convert($node, 'Ttree\Moltin\Domain\Model\Product');
 		foreach ($this->requiredProperties as $propertyName) {
-			if (trim($productProperties->getProperty($propertyName)) === '') {
+			if (trim($product->getProperty($propertyName)) === '') {
 				throw new Exception(sprintf('The property "%s" is required', $propertyName), 1431033237);
 			}
 		}
-		$product = $this->productRepository->findBySlug($node->getIdentifier());
-		if ($product !== NULL) {
-			Product::Update($product->getIdentifier(), $productProperties->getProperties());
-			$message = sprintf('Moltin product "%s" updated, based on node "%s"', $product->getIdentifier(), $node->getPath());
+		$existingProduct = $this->productRepository->findBySlug($node->getIdentifier());
+		if ($existingProduct !== NULL) {
+			$existingProduct->setProperties($product->getProperties());
+			$this->productRepository->update($existingProduct);
+			$message = sprintf('Moltin product "%s" updated, based on node "%s"', $existingProduct->getIdentifier(), $node->getPath());
 		} else {
-			$product = Product::Create($productProperties->getProperties());
+			$this->productRepository->add($product);
 			$message = sprintf('Moltin product "%s" created, based on node "%s"', $product->getIdentifier(), $node->getPath());
 		}
 		$this->logger->log($message, LOG_DEBUG);
@@ -94,7 +74,7 @@ class ProductService {
 		if ($product !== NULL) {
 			return;
 		}
-		Product::Delete($product->getIdentifier());
+		$this->productRepository->remove($product);
 	}
 
 }
