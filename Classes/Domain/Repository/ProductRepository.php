@@ -5,6 +5,7 @@ use Moltin\SDK\Facade\Product;
 use Ttree\Moltin\Domain\Model\Product as MoltinProduct;
 use Ttree\Moltin\Domain\Service\AuthenticateService;
 use TYPO3\Flow\Annotations as Flow;
+use TYPO3\Flow\Exception;
 
 /**
  * A repository for managing product
@@ -13,7 +14,9 @@ use TYPO3\Flow\Annotations as Flow;
  * @api
  * @license http://www.opensource.org/licenses/mit-license.html MIT License
  */
-class ProductRepository {
+class ProductRepository extends AbstractMoltinRepository {
+
+	const ENTITY_CLASSNAME = 'Ttree\Moltin\Domain\Model\Product';
 
 	/**
 	 * @Flow\Inject
@@ -61,6 +64,31 @@ class ProductRepository {
 			return NULL;
 		}
 		return new MoltinProduct($product['result'][0]);
+	}
+
+	/**
+	 * @param MoltinProduct $product
+	 * @return void
+	 */
+	public function update($product) {
+		Product::Update($product->getIdentifier(), $product->getProperties());
+	}
+
+	/**
+	 * @param MoltinProduct $product
+	 * @return void
+	 */
+	public function remove($product) {
+		Product::Delete($product->getIdentifier());
+	}
+
+	/**
+	 * @param MoltinProduct $product
+	 * @return void
+	 */
+	public function add($product) {
+		$rawProduct = Product::Create($product->getProperties());
+		$product->setProperty('id', $rawProduct['result']['id']);
 	}
 
 }
