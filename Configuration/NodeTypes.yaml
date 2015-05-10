@@ -47,8 +47,8 @@
       validation:
         'TYPO3.Neos/Validation/FloatValidator': []
     productTaxBand:
-      type: integer
-      defaultValue: 1
+      type: string
+      defaultValue: ''
       ui:
         label: "Tax Band"
         reloadPageIfChanged: TRUE
