@@ -1,10 +1,14 @@
 <?php
 namespace Ttree\Moltin\NodeTypePostprocessor;
 
+use Moltin\SDK\Exception\InvalidRequestException;
 use Moltin\SDK\Facade\Category;
 use Moltin\SDK\Facade\Tax;
 use Ttree\Moltin\Domain\Service\AuthenticateService;
+use Ttree\Moltin\Domain\Service\CategoryService;
+use Ttree\Moltin\Domain\Service\TaxService;
 use TYPO3\Flow\Annotations as Flow;
+use TYPO3\Flow\Log\SystemLoggerInterface;
 use TYPO3\Flow\Utility\Algorithms;
 use TYPO3\Flow\Utility\Arrays;
 use TYPO3\TYPO3CR\Domain\Model\NodeType;
@@ -24,6 +28,24 @@ class ProductNodeTypePostprocessor implements NodeTypePostprocessorInterface {
 	protected $authenticateService;
 
 	/**
+	 * @Flow\Inject
+	 * @var CategoryService
+	 */
+	protected $categoryService;
+
+	/**
+	 * @Flow\Inject
+	 * @var TaxService
+	 */
+	protected $taxService;
+
+	/**
+	 * @Flow\Inject
+	 * @var SystemLoggerInterface
+	 */
+	protected $logger;
+
+	/**
 	 * Returns the processed Configuration
 	 *
 	 * @param NodeType $nodeType (uninitialized) The node type to process
@@ -32,19 +54,23 @@ class ProductNodeTypePostprocessor implements NodeTypePostprocessorInterface {
 	 * @return void
 	 */
 	public function process(NodeType $nodeType, array &$configuration, array $options) {
-		if (!$nodeType->isOfType('Ttree.Moltin:ProductMixins')) {
-			return;
+		try {
+			if (!$nodeType->isOfType('Ttree.Moltin:ProductMixins')) {
+				return;
+			}
+			$this->authenticateService->authenticate();
+			$this->processCategories($configuration);
+			$this->processTaxes($configuration);
+		} catch (InvalidRequestException $exception) {
+			$this->logger->logException($exception);
 		}
-		$this->authenticateService->authenticate();
-		$this->processCategories($configuration);
-		$this->processTaxes($configuration);
 	}
 
 	/**
 	 * @param array $configuration
 	 */
 	protected function processTaxes(array &$configuration) {
-		$taxes = Tax::Listing(['limit' => '10']);
+		$taxes = $this->taxService->tree();
 		$processedTaxes = ['' => [ 'label' => '' ]];
 		foreach ($taxes['result'] as $tax) {
 			$processedTaxes[$tax['id']] = [
@@ -58,9 +84,9 @@ class ProductNodeTypePostprocessor implements NodeTypePostprocessorInterface {
 	 * @param array $configuration
 	 */
 	protected function processCategories(array &$configuration) {
-		$categoryTree = Category::Tree();
+		$tree = $this->categoryService->tree();
 		$processedCategories = ['' => [ 'label' => '' ]];
-		$this->processCategoryTree($processedCategories, $categoryTree['result']);
+		$this->processCategoryTree($processedCategories, $tree['result']);
 		$configuration = Arrays::setValueByPath($configuration, 'properties.productCategory.ui.inspector.editorOptions.values', $processedCategories);
 	}
 
