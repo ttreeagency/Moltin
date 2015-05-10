@@ -2,6 +2,7 @@
 namespace Ttree\Moltin\Domain\Model;
 
 use TYPO3\Flow\Annotations as Flow;
+use TYPO3\Flow\Utility\Arrays;
 
 /**
  * A product domain model
@@ -39,9 +40,10 @@ class Product {
 
 	/**
 	 * @param array $properties
+	 * @param boolean $merge
 	 */
-	public function setProperties($properties) {
-		$this->properties = $properties;
+	public function setProperties($properties, $merge = TRUE) {
+		$this->properties = $merge ? Arrays::arrayMergeRecursiveOverrule($this->properties, $properties) : $properties;
 	}
 
 	/**
