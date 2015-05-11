@@ -14,7 +14,7 @@ use TYPO3\TYPO3CR\Domain\Model\Workspace;
  * @api
  * @license http://www.opensource.org/licenses/mit-license.html MIT License
  */
-class ProductService extends AbstractService {
+class ProductPublishingService extends AbstractService {
 
 	/**
 	 * @Flow\Inject
@@ -29,6 +29,7 @@ class ProductService extends AbstractService {
 	 */
 	public function createOrUpdate(NodeInterface $node, Workspace $workspace) {
 		if (!$node->getNodeType()->isOfType('Ttree.Moltin:ProductMixins') || $workspace->getName() !== 'live') {
+			$this->logger->log(sprintf('Skip publishing product based on node "%s"', $node->getPath()), LOG_DEBUG);
 			return;
 		}
 		$productIdentifier = NULL;
@@ -36,6 +37,7 @@ class ProductService extends AbstractService {
 
 		/** @var MoltinProduct $product */
 		$product = $this->propertyMapper->convert($node, 'Ttree\Moltin\Domain\Model\Product');
+		$this->logger->log(sprintf('Start publishing product "%s", based on node "%s"', $product->getIdentifier(), $node->getPath()), LOG_DEBUG);
 		if (!$product->isComplete()) {
 			$this->logger->log(sprintf('Missing property in the current product "%s", based on node "%s"', $product->getIdentifier(), $node->getPath()), LOG_WARNING);
 			return;

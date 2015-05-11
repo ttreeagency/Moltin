@@ -21,6 +21,6 @@ class Package extends BasePackage {
 	 */
 	public function boot(Bootstrap $bootstrap) {
 		$dispatcher = $bootstrap->getSignalSlotDispatcher();
-		$dispatcher->connect('TYPO3\Neos\Service\PublishingService', 'nodePublished', 'Ttree\Moltin\Domain\Service\ProductService', 'createOrUpdate');
+		$dispatcher->connect('TYPO3\Neos\Service\PublishingService', 'nodePublished', 'Ttree\Moltin\Domain\Service\ProductPublishingService', 'createOrUpdate');
 	}
 }
