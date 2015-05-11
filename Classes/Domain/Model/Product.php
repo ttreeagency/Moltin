@@ -18,6 +18,12 @@ class Product {
 	protected $properties = array();
 
 	/**
+	 * @var array
+	 * @see http://docs.moltin.com/1.0/product/php#params
+	 */
+	protected $requiredProperties = ['sku', 'title', 'slug', 'price', 'status', 'category', 'stock_level', 'stock_status', 'description', 'requires_shipping', 'tax_band', 'catalog_only'];
+
+	/**
 	 * @param array $properties
 	 */
 	public function __construct(array $properties) {
@@ -36,6 +42,19 @@ class Product {
 	 */
 	public function getProperties() {
 		return $this->properties;
+	}
+
+	/**
+	 * @return boolean
+	 */
+	public function isComplete() {
+		foreach ($this->requiredProperties as $propertyName) {
+			if (trim($this->getProperty($propertyName)) === '') {
+				return FALSE;
+			}
+		}
+
+		return TRUE;
 	}
 
 	/**
