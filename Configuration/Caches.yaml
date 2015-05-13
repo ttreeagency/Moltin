@@ -1,0 +1,3 @@
+Ttree_Moltin_Response_Cache:
+  frontend: TYPO3\Flow\Cache\Frontend\VariableFrontend
+  backend: TYPO3\Flow\Cache\Backend\FileBackend
