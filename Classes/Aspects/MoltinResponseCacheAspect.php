@@ -35,10 +35,18 @@ class MoltinResponseCacheAspect {
 		}
 		$result = $joinPoint->getAdviceChain()->proceed($joinPoint);
 		$this->cache->set($cacheIdentifier, $result, [
-			$joinPoint->getClassName(),
-			sprintf('%s::%s', $joinPoint->getClassName(), $joinPoint->getMethodName()),
+			$this->getValidTag($joinPoint->getClassName()),
+			$this->getValidTag(sprintf('%s::%s', $joinPoint->getClassName(), $joinPoint->getMethodName())),
 		], 7200);
 		return $result;
+	}
+
+	/**
+	 * @param string $tag
+	 * @return string
+	 */
+	protected function getValidTag($tag) {
+		return substr(str_replace(['\\', '::'], ['_', '__'], $tag), 0, 250);
 	}
 
 }
